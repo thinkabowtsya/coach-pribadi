@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Practice Coach - 90 Days</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        /* Navbar */
+        nav {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav h1 { font-size: 1.2rem; color: var(--primary); cursor: pointer; }
+        
+        .nav-links { display: flex; gap: 15px; }
+        .nav-links button {
+            background: none; border: none; font-size: 1rem;
+            color: var(--text-muted); cursor: pointer; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links button:hover, .nav-links button.active { color: var(--primary); }
+
+        /* Container & Layout */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .section-title { font-size: 1.5rem; margin-bottom: 20px; color: var(--text-main); }
+        .card {
+            background: var(--card-bg); border-radius: 10px;
+            padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+
+        /* Buttons & Inputs */
+        button.btn {
+            padding: 10px 16px; border-radius: 6px; border: none;
+            font-size: 0.95rem; cursor: pointer; font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+
+        input, textarea, select {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 6px; margin-bottom: 15px; font-family: inherit; font-size: 1rem;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+
+        /* Grid Layouts */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+
+        /* Dashboard Cards */
+        .day-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; padding: 15px; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .day-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .day-num { font-weight: bold; font-size: 1.1rem; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .badge.not-started { background: #e2e8f0; color: #475569; }
+        .badge.in-progress { background: #dbeafe; color: #1e40af; }
+        .badge.done { background: #d1fae5; color: #065f46; }
+        
+        .month-header { margin: 30px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid var(--border); color: var(--primary); }
+
+        /* Study Elements */
+        .vocab-list, .phrase-list { list-style: none; margin-bottom: 20px; }
+        .vocab-list li, .phrase-list li {
+            padding: 10px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column;
+        }
+        .en-text { font-weight: bold; font-size: 1.05rem; }
+        .id-text { color: var(--text-muted); font-size: 0.9rem; }
+
+        .study-step { margin-top: 30px; border-top: 2px dashed var(--border); padding-top: 20px; }
+        .step-number {
+            display: inline-block; background: var(--primary); color: white;
+            width: 28px; height: 28px; text-align: center; line-height: 28px;
+            border-radius: 50%; margin-right: 10px; font-weight: bold;
+        }
+
+        /* Active Recall */
+        #recall-area { background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border);}
+        #recall-hint { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-main); font-weight: 500;}
+        #recall-answer { font-size: 1.3rem; font-weight: bold; color: var(--success); margin: 15px 0; display: none; }
+
+        /* Message Box */
+        .msg-box {
+            background: #e0f2fe; border-left: 4px solid var(--primary);
+            padding: 15px; margin-bottom: 20px; border-radius: 4px;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .mb-10 { margin-bottom: 10px; }
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .gap-10 { gap: 10px; }
+
+        @media (max-width: 600px) {
+            .nav-links { margin-top: 10px; width: 100%; justify-content: space-around; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1 onclick="app.navigate('dashboard')">EngCoach 90</h1>
+        <div class="nav-links">
+            <button id="nav-dashboard" onclick="app.navigate('dashboard')" class="active">Dashboard</button>
+            <button id="nav-review" onclick="app.navigate('review')">Review</button>
+            <button id="nav-progress" onclick="app.navigate('progress')">My Progress</button>
+        </div>
+    </nav>
+
+    <div class="container" id="app-content">
+        <!-- Content will be rendered here dynamically -->
+    </div>
+
+<script>
+/**
+ * 1. CURRICULUM DATA GENERATOR
+ * Generates 90 days of content according to the requested structure.
+ */
+const topicsList = [
+    // Month 1
+    "Self Introduction", "Daily Routine", "Family", "Hobbies", "Food", "Home & City", "Weekly Review 1",
+    "Morning Activities", "Workday Routine", "Weekend Activities", "Likes and Dislikes", "Feelings", "Simple Questions", "Weekly Review 2",
+    "Present Habit", "Past Activities", "Future Plans", "Asking About Time", "Describing People", "Describing Places", "Weekly Review 3",
+    "Small Talk", "Meeting New People", "Talking About Yourself", "Talking About Your Day", "Talking About Your Study", "Talking About Your Work", "Weekly Review 4", "Mixed Practice", "Monthly Test 1",
+    // Month 2
+    "My Job", "Tasks and Responsibilities", "Meetings", "Deadlines", "Asking for Help", "Explaining Problems", "Weekly Review 5",
+    "University Life", "Thesis Topic", "Research Method", "Data and Analysis", "Explaining Results", "Asking Academic Questions", "Weekly Review 6",
+    "Programming Basics", "Web Development", "Application Features", "Bugs and Fixes", "Learning New Skills", "Explaining a Project", "Weekly Review 7",
+    "Social Media", "Shopping", "Restaurant", "Travel", "Health", "Making Plans", "Weekly Review 8", "Mixed Practice", "Monthly Test 2",
+    // Month 3
+    "Giving Opinions", "Agreeing and Disagreeing", "Explaining Reasons", "Comparing Options", "Talking About Preferences", "Giving Suggestions", "Weekly Review 9",
+    "Memorable Experience", "A Difficult Day", "A Problem I Solved", "My Learning Journey", "My Work Experience", "My Future Goals", "Weekly Review 10",
+    "Job Interview Introduction", "Strengths and Weaknesses", "Explaining Skills", "Explaining Experience", "Discussing a Project", "Workplace Small Talk", "Weekly Review 11",
+    "Meeting Someone New", "Casual Conversation", "Workplace Roleplay", "Academic Roleplay", "Problem-Solving Roleplay", "Opinion Discussion", "Weekly Review 12", "Final Mixed Practice", "Final Speaking Test"
+];
+
+const curriculum = [];
+for (let i = 1; i <= 90; i++) {
+    let type = 'normal';
+    if (i % 30 === 0) type = 'test';
+    else if (i % 7 === 0) type = 'review';
+    else if (i === 29 || i === 59 || i === 89) type = 'mixed';
+
+    let topicName = topicsList[i - 1] || `Day ${i} Topic`;
+    
+    // Generic generator to fulfill minimum requirements (3 phrases, 5 vocab, 3 examples, 5 qs, 1 speaking)
+    let dayData = {
+        day: i,
+        month: Math.ceil(i / 30),
+        week: Math.ceil(i / 7),
+        topic: topicName,
+        type: type,
+        goal: `Build confidence discussing: ${topicName}`,
+        phrases: [
+            { en: `Let's talk about ${topicName.toLowerCase()}.`, id: `Mari bicara tentang ${topicName.toLowerCase()}.` },
+            { en: `In my experience with ${topicName.toLowerCase()}...`, id: `Menurut pengalaman saya tentang ${topicName.toLowerCase()}...` },
+            { en: `What do you think about ${topicName.toLowerCase()}?`, id: `Apa pendapat Anda tentang ${topicName.toLowerCase()}?` }
+        ],
+        vocabulary: [
+            { en: "important", id: "penting" },
+            { en: "interesting", id: "menarik" },
+            { en: "experience", id: "pengalaman" },
+            { en: "usually", id: "biasanya" },
+            { en: "improve", id: "meningkatkan" }
+        ],
+        examples: [
+            `I want to improve my skills in ${topicName.toLowerCase()}.`,
+            `This topic is very important for my daily life.`,
+            `I usually practice this every day.`
+        ],
+        questions: [
+            `How often do you deal with ${topicName.toLowerCase()}?`,
+            `Why is ${topicName.toLowerCase()} important to you?`,
+            `Can you share a story about this?`,
+            `What is the hardest part about this topic?`,
+            `How do you usually handle it?`
+        ],
+        speakingChallenge: `Talk non-stop for 60 seconds explaining your personal thoughts on ${topicName}.`
+    };
+    curriculum.push(dayData);
+}
+
+// Override Day 1, 2 for highly specific, realistic content as example
+curriculum[0] = { ...curriculum[0], 
+    phrases: [ { en: "My name is...", id: "Nama saya adalah..." }, { en: "I am from...", id: "Saya berasal dari..." }, { en: "Nice to meet you.", id: "Senang bertemu denganmu." } ],
+    vocabulary: [ { en: "name", id: "nama" }, { en: "live", id: "tinggal" }, { en: "work", id: "bekerja" }, { en: "student", id: "mahasiswa/pelajar" }, { en: "hometown", id: "kampung halaman" } ],
+    examples: [ "My name is Budi and I am from Jakarta.", "I live in a small apartment.", "Nice to meet you, I work as a developer." ],
+    questions: [ "What is your full name?", "Where are you originally from?", "Where do you live right now?", "What do you do for a living?", "Are you a student or a worker?" ],
+    speakingChallenge: "Introduce yourself completely: name, origin, current city, and what you do."
+};
+curriculum[1] = { ...curriculum[1], 
+    phrases: [ { en: "I usually wake up at...", id: "Saya biasanya bangun jam..." }, { en: "After that, I...", id: "Setelah itu, saya..." }, { en: "In the evening, I...", id: "Di malam hari, saya..." } ],
+    vocabulary: [ { en: "wake up", id: "bangun tidur" }, { en: "breakfast", id: "sarapan" }, { en: "prepare", id: "bersiap-siap" }, { en: "leave", id: "berangkat" }, { en: "rest", id: "istirahat" } ],
+    examples: [ "I usually wake up at 6 AM.", "After that, I eat breakfast and prepare for work.", "In the evening, I rest and watch TV." ],
+    questions: [ "What time do you usually wake up?", "What is the first thing you do in the morning?", "What do you usually have for breakfast?", "When do you start working/studying?", "What do you do before going to sleep?" ],
+    speakingChallenge: "Describe your entire routine from morning to night in detail."
+};
+
+/**
+ * 2. APPLICATION STATE & LOGIC
+ */
+const app = {
+    contentDiv: document.getElementById('app-content'),
+    userData: {
+        progress: {}, // { "1": "done", "2": "in_progress" }
+        sentences: {}, // { "1": ["sentence 1"] }
+        conversations: {}, // { "1": ["ans 1", "ans 2"] }
+        speaking: {}, // { "1": "speaking transcript" }
+        tests: {}, // { "30": { intro: "...", daily: "..." } }
+        reviewAgain: [], // [{ en, id, type }]
+        lastDayOpened: null
+    },
+    currentDayData: null,
+    
+    // Feature States
+    recallState: { items: [], index: 0 },
+    convoState: { index: 0, answers: [] },
+    timerInterval: null,
+
+    init() {
+        this.loadProgress();
+        this.navigate('dashboard');
+    },
+
+    saveProgress() {
+        localStorage.setItem('epc_user_data', JSON.stringify(this.userData));
+    },
+
+    loadProgress() {
+        const saved = localStorage.getItem('epc_user_data');
+        if (saved) {
+            this.userData = { ...this.userData, ...JSON.parse(saved) };
+            if(!this.userData.reviewAgain) this.userData.reviewAgain = [];
+        }
+    },
+
+    navigate(view, param = null) {
+        // Update Navbar Active State
+        document.querySelectorAll('.nav-links button').forEach(btn => btn.classList.remove('active'));
+        const navBtn = document.getElementById(`nav-${view}`);
+        if(navBtn) navBtn.classList.add('active');
+
+        // Stop any running timers
+        if(this.timerInterval) clearInterval(this.timerInterval);
+
+        window.scrollTo(0, 0);
+
+        if (view === 'dashboard') this.renderDashboard();
+        else if (view === 'day') this.openDay(param);
+        else if (view === 'review') this.renderReviewPage();
+        else if (view === 'progress') this.renderProgressPage();
+    },
+
+    /** DASHBOARD VIEW **/
+    renderDashboard() {
+        let html = `<div class="section-title">Your 90-Day Journey</div>`;
+        
+        for (let month = 1; month <= 3; month++) {
+            let monthTitles = ["Month 1: Foundation Conversation", "Month 2: Daily & Workplace Conversation", "Month 3: Confidence & Real Conversation Simulation"];
+            html += `<h2 class="month-header">${monthTitles[month - 1]}</h2><div class="grid-3">`;
+            
+            let daysInMonth = curriculum.filter(d => d.month === month);
+            daysInMonth.forEach(d => {
+                let status = this.userData.progress[d.day] || 'not-started';
+                let statusText = status === 'done' ? 'Done' : (status === 'in_progress' ? 'In Progress' : 'Not Started');
+                
+                let dayTypeBadge = '';
+                if(d.type === 'review') dayTypeBadge = '⭐ Review';
+                if(d.type === 'test') dayTypeBadge = '🏆 Test';
+
+                html += `
+                    <div class="day-card" onclick="app.navigate('day', ${d.day})">
+                        <div class="day-header">
+                            <span class="day-num">Day ${d.day} ${dayTypeBadge}</span>
+                            <span class="badge ${status.replace('_', '-')}">${statusText}</span>
+                        </div>
+                        <div class="day-topic" style="font-weight: 500;">${d.topic}</div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
+        this.contentDiv.innerHTML = html;
+    },
+
+    /** DAY DISPATCHER **/
+    openDay(dayNum) {
+        this.currentDayData = curriculum.find(d => d.day === dayNum);
+        this.userData.lastDayOpened = dayNum;
+        if(this.userData.progress[dayNum] !== 'done') {
+            this.userData.progress[dayNum] = 'in_progress';
+        }
+        this.saveProgress();
+
+        if (this.currentDayData.type === 'test') {
+            this.renderMonthlyTest();
+        } else if (this.currentDayData.type === 'review') {
+            this.renderWeeklyReview();
+        } else {
+            this.renderNormalDay();
+        }
+    },
+
+    /** NORMAL DAY VIEW **/
+    renderNormalDay() {
+        const d = this.currentDayData;
+        let html = `
+            <div class="card mb-10">
+                <button class="btn btn-outline mb-10" onclick="app.navigate('dashboard')">← Back to Dashboard</button>
+                <h2 style="font-size: 1.8rem;">Day ${d.day}: ${d.topic}</h2>
+                <p style="color: var(--text-muted);">${d.goal}</p>
+            </div>
+            
+            <div class="msg-box">
+                <strong>Instructions:</strong> Go through the materials, practice your recall, build sentences, and finish with a speaking challenge!
+            </div>
+
+            <div class="card">
+                <h3 class="mb-10"><span class="step-number">1</span> Material: Phrases & Vocabulary</h3>
+                <div class="grid-2">
+                    <div>
+                        <h4 style="margin-bottom:10px;">Target Phrases</h4>
+                        <ul class="phrase-list">
+                            ${d.phrases.map(p => `<li><span class="en-text">${p.en}</span><span class="id-text">${p.id}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom:10px;">Vocabulary</h4>
+                        <ul class="vocab-list">
+                            ${d.vocabulary.map(v => `<li><span class="en-text">${v.en}</span><span class="id-text">${v.id}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-20">
+                    <h4 style="margin-bottom:10px;">Example Sentences</h4>
+                    <ul style="padding-left: 20px; color: #334155;">
+                        ${d.examples.map(ex => `<li>${ex}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Active Recall Section -->
+            <div class="card study-step" id="section-recall">
+                <h3 class="mb-10"><span class="step-number">2</span> Active Recall Mode</h3>
+                <p class="mb-10 text-muted">Test your memory! Look at the Indonesian hint and type the English translation.</p>
+                <div id="recall-area">
+                    <button class="btn btn-primary" onclick="app.startActiveRecall()">Start Recall Practice</button>
+                </div>
+            </div>
+
+            <!-- Sentence Builder Section -->
+            <div class="card study-step">
+                <h3 class="mb-10"><span class="step-number">3</span> Sentence Builder</h3>
+                <p class="mb-10">Choose a phrase and create your own sentence.</p>
+                <select id="sb-phrase">
+                    ${d.phrases.map(p => `<option value="${p.en}">${p.en}</option>`).join('')}
+                </select>
+                <textarea id="sb-input" placeholder="Write your complete sentence here..."></textarea>
+                <button class="btn btn-primary" onclick="app.saveSentence()">Save Sentence</button>
+                
+                <div id="sb-saved" class="mt-20">
+                    ${this.renderSavedSentences()}
+                </div>
+            </div>
+
+            <!-- Mini Conversation Section -->
+            <div class="card study-step">
+                <h3 class="mb-10"><span class="step-number">4</span> Mini Conversation</h3>
+                <div id="convo-area" style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
+                    <button class="btn btn-primary" onclick="app.startConversation()">Start Conversation Practice</button>
+                </div>
+                <div id="convo-saved" class="mt-20">
+                    ${this.renderSavedConversations()}
+                </div>
+            </div>
+
+            <!-- Speaking Challenge Section -->
+            <div class="card study-step">
+                <h3 class="mb-10"><span class="step-number">5</span> Speaking Challenge</h3>
+                <div class="msg-box" style="background: #fffbeb; border-color: #f59e0b;">
+                    <strong>Instruction:</strong> Read the prompt, answer out loud for 60 seconds, then write what you said.
+                </div>
+                <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px;">Prompt: "${d.speakingChallenge}"</p>
+                
+                <div class="flex gap-10 align-center mb-10">
+                    <button class="btn btn-warning" onclick="app.startSpeakingTimer()">Start 60s Timer</button>
+                    <span id="speaking-timer" style="font-size: 1.5rem; font-weight: bold;">60</span>
+                </div>
+                
+                <textarea id="speaking-input" placeholder="After speaking, type a summary of what you said here...">${this.userData.speaking[d.day] || ''}</textarea>
+                <button class="btn btn-primary" onclick="app.saveSpeaking()">Save Speaking Draft</button>
+            </div>
+
+            <div class="card text-center study-step" style="background: #f0fdf4; border-color: #86efac;">
+                <h3>Great Job!</h3>
+                <p class="mb-10">Have you completed all exercises for today?</p>
+                <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 24px;" onclick="app.markDayDone()">Mark Day ${d.day} as Completed</button>
+            </div>
+        `;
+        this.contentDiv.innerHTML = html;
+    },
+
+    /** ACTIVE RECALL LOGIC **/
+    startActiveRecall() {
+        let d = this.currentDayData;
+        this.recallState.items = [...d.phrases, ...d.vocabulary].sort(() => Math.random() - 0.5);
+        this.recallState.index = 0;
+        this.renderRecallItem();
+    },
+
+    renderRecallItem() {
+        let state = this.recallState;
+        if(state.index >= state.items.length) {
+            document.getElementById('recall-area').innerHTML = `
+                <div style="color: var(--success); font-size: 1.2rem; font-weight: bold;">🎉 Recall Session Completed!</div>
+                <button class="btn btn-outline mt-10" onclick="app.startActiveRecall()">Practice Again</button>
+            `;
+            return;
+        }
+
+        let item = state.items[state.index];
+        document.getElementById('recall-area').innerHTML = `
+            <div id="recall-hint">Indonesian: <strong>${item.id}</strong></div>
+            <input type="text" id="recall-input" placeholder="Type the English translation..." autocomplete="off">
+            <button class="btn btn-primary mt-10" onclick="app.checkRecall()">Check Answer</button>
+            <div id="recall-answer"></div>
+            <div id="recall-actions" class="hidden flex gap-10 justify-center mt-10">
+                <button class="btn btn-success" onclick="app.nextRecall(true)">Correct (Got it!)</button>
+                <button class="btn btn-warning" onclick="app.nextRecall(false)">Review Again Later</button>
+            </div>
+            <div class="mt-10 text-muted" style="font-size: 0.85rem;">Item ${state.index + 1} of ${state.items.length}</div>
+        `;
+    },
+
+    checkRecall() {
+        let item = this.recallState.items[this.recallState.index];
+        let ansDiv = document.getElementById('recall-answer');
+        ansDiv.style.display = 'block';
+        ansDiv.innerHTML = `Correct English: <strong>${item.en}</strong>`;
+        document.getElementById('recall-actions').classList.remove('hidden');
+    },
+
+    nextRecall(isCorrect) {
+        let item = this.recallState.items[this.recallState.index];
+        if(!isCorrect) {
+            // check if already in reviewAgain
+            let exists = this.userData.reviewAgain.find(i => i.en === item.en);
+            if(!exists) {
+                this.userData.reviewAgain.push(item);
+                this.saveProgress();
+            }
+        }
+        this.recallState.index++;
+        this.renderRecallItem();
+    },
+
+    /** SENTENCE BUILDER LOGIC **/
+    saveSentence() {
+        let d = this.currentDayData;
+        let val = document.getElementById('sb-input').value.trim();
+        if(!val) return;
+        
+        if(!this.userData.sentences[d.day]) this.userData.sentences[d.day] = [];
+        this.userData.sentences[d.day].push(val);
+        this.saveProgress();
+        
+        document.getElementById('sb-input').value = '';
+        document.getElementById('sb-saved').innerHTML = this.renderSavedSentences();
+    },
+
+    renderSavedSentences() {
+        let day = this.currentDayData.day;
+        let sents = this.userData.sentences[day] || [];
+        if(sents.length === 0) return '';
+        return `<h4>My Sentences:</h4>
+                <ul style="background: #f8fafc; padding: 15px 30px; border-radius: 6px; margin-top: 10px;">
+                    ${sents.map(s => `<li>${s}</li>`).join('')}
+                </ul>`;
+    },
+
+    /** MINI CONVERSATION LOGIC **/
+    startConversation() {
+        this.convoState.index = 0;
+        this.convoState.answers = [];
+        this.renderConvoQuestion();
+    },
+
+    renderConvoQuestion() {
+        let qList = this.currentDayData.questions;
+        let idx = this.convoState.index;
+        
+        if(idx >= qList.length) {
+            // Save answers
+            this.userData.conversations[this.currentDayData.day] = this.convoState.answers;
+            this.saveProgress();
+            
+            document.getElementById('convo-area').innerHTML = `
+                <div style="color: var(--success); font-weight: bold;">Conversation Practice Completed!</div>
+                <button class="btn btn-outline mt-10" onclick="app.startConversation()">Practice Again</button>
+            `;
+            document.getElementById('convo-saved').innerHTML = this.renderSavedConversations();
+            return;
+        }
+
+        let q = qList[idx];
+        document.getElementById('convo-area').innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 15px; color: var(--primary);">Q${idx+1}: ${q}</div>
+            <textarea id="convo-input" placeholder="Type your answer naturally..."></textarea>
+            <button class="btn btn-primary" onclick="app.nextConvoQuestion()">Next Question</button>
+            <div class="mt-10 text-muted" style="font-size: 0.85rem;">Question ${idx + 1} of ${qList.length}</div>
+        `;
+    },
+
+    nextConvoQuestion() {
+        let val = document.getElementById('convo-input').value.trim();
+        let qList = this.currentDayData.questions;
+        this.convoState.answers.push({ q: qList[this.convoState.index], a: val || "(No answer)" });
+        this.convoState.index++;
+        this.renderConvoQuestion();
+    },
+
+    renderSavedConversations() {
+        let day = this.currentDayData.day;
+        let convos = this.userData.conversations[day] || [];
+        if(convos.length === 0) return '';
+        
+        let html = `<h4>My Conversation Answers:</h4><div style="margin-top: 10px;">`;
+        convos.forEach((c, i) => {
+            html += `<div style="background: #f8fafc; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border);">
+                        <div style="font-weight: 500; font-size: 0.9rem;">Q: ${c.q}</div>
+                        <div style="color: var(--primary); margin-top: 5px;">A: ${c.a}</div>
+                     </div>`;
+        });
+        html += `</div>`;
+        return html;
+    },
+
+    /** SPEAKING LOGIC **/
+    startSpeakingTimer() {
+        let timeLeft = 60;
+        let timerEl = document.getElementById('speaking-timer');
+        timerEl.innerText = timeLeft + 's';
+        timerEl.style.color = 'var(--text-main)';
+        
+        if(this.timerInterval) clearInterval(this.timerInterval);
+        
+        this.timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = timeLeft + 's';
+            if(timeLeft <= 10) timerEl.style.color = 'red';
+            
+            if(timeLeft <= 0) {
+                clearInterval(this.timerInterval);
+                timerEl.innerText = "Time's Up!";
+                // Add a visual cue instead of alert
+                timerEl.style.background = '#fee2e2';
+                timerEl.style.padding = '0 10px';
+                timerEl.style.borderRadius = '4px';
+            }
+        }, 1000);
+    },
+
+    saveSpeaking() {
+        let val = document.getElementById('speaking-input').value.trim();
+        this.userData.speaking[this.currentDayData.day] = val;
+        this.saveProgress();
+        
+        let btn = event.target;
+        btn.innerText = "Saved!";
+        btn.classList.replace('btn-primary', 'btn-success');
+        setTimeout(() => { btn.innerText = "Save Speaking Draft"; btn.classList.replace('btn-success', 'btn-primary'); }, 2000);
+    },
+
+    markDayDone() {
+        this.userData.progress[this.currentDayData.day] = 'done';
+        this.saveProgress();
+        this.navigate('dashboard');
+    },
+
+    /** WEEKLY REVIEW LOGIC **/
+    renderWeeklyReview() {
+        const d = this.currentDayData;
+        // Gather past 6 days data
+        let pastItems = [];
+        for(let i = d.day - 6; i < d.day; i++) {
+            let pastDay = curriculum.find(x => x.day === i);
+            if(pastDay) {
+                pastItems.push(...pastDay.phrases, ...pastDay.vocabulary);
+            }
+        }
+        
+        let html = `
+            <div class="card mb-10 text-center" style="background: #eef2ff;">
+                <button class="btn btn-outline mb-10" onclick="app.navigate('dashboard')" style="float: left;">← Dashboard</button>
+                <div style="clear: both;"></div>
+                <h2 style="font-size: 1.8rem; color: var(--primary);">Week ${d.week} Review</h2>
+                <p>Consolidate your learning from the past 6 days.</p>
+            </div>
+            
+            <div class="card">
+                <h3>10 Random Recall Challenge</h3>
+                <p class="mb-10 text-muted">We have selected 10 random items from this week. Test your memory!</p>
+                <div id="recall-area">
+                    <button class="btn btn-primary" onclick="app.startReviewRecall()">Start Weekly Recall</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Mixed Conversation Practice</h3>
+                <p class="mb-10 text-muted">Answer these 5 random questions from the week.</p>
+                <div id="convo-area" style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                    <button class="btn btn-primary" onclick="app.startReviewConvo()">Start Mixed Conversation</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Speaking Reflection</h3>
+                <p><strong>Prompt:</strong> Summarize what you learned this week and how you feel about your progress. Speak for 60 seconds.</p>
+                <div class="flex gap-10 align-center mb-10 mt-10">
+                    <button class="btn btn-warning" onclick="app.startSpeakingTimer()">Start Timer</button>
+                    <span id="speaking-timer" style="font-size: 1.5rem; font-weight: bold;">60</span>
+                </div>
+                <textarea id="speaking-input" placeholder="Write your summary here...">${this.userData.speaking[d.day] || ''}</textarea>
+                <button class="btn btn-primary" onclick="app.saveSpeaking()">Save Reflection</button>
+            </div>
+
+            <div class="text-center mt-20">
+                <button class="btn btn-success" style="padding: 12px 24px; font-size: 1.1rem;" onclick="app.markDayDone()">Finish Weekly Review</button>
+            </div>
+        `;
+        this.contentDiv.innerHTML = html;
+        
+        // Setup specialized state for review
+        this.reviewPastItems = pastItems;
+    },
+
+    startReviewRecall() {
+        let shuffled = [...this.reviewPastItems].sort(() => 0.5 - Math.random());
+        this.recallState.items = shuffled.slice(0, 10);
+        this.recallState.index = 0;
+        this.renderRecallItem();
+    },
+
+    startReviewConvo() {
+        // Collect past questions
+        let d = this.currentDayData;
+        let pastQs = [];
+        for(let i = d.day - 6; i < d.day; i++) {
+            let pastDay = curriculum.find(x => x.day === i);
+            if(pastDay && pastDay.questions) pastQs.push(...pastDay.questions);
+        }
+        let shuffled = pastQs.sort(() => 0.5 - Math.random()).slice(0, 5);
+        
+        // temporarily overwrite current day questions just for the convo logic to work
+        this.currentDayData.questions = shuffled;
+        this.convoState.index = 0;
+        this.convoState.answers = [];
+        this.renderConvoQuestion();
+    },
+
+    /** MONTHLY TEST LOGIC **/
+    renderMonthlyTest() {
+        const d = this.currentDayData;
+        let savedTest = this.userData.tests[d.day] || {};
+        
+        let sections = [
+            { id: 'intro', title: "Self Introduction", desc: "Introduce yourself completely." },
+            { id: 'daily', title: "Daily Life", desc: "Describe your typical daily routine." },
+            { id: 'work', title: "Work / Study", desc: "Talk about your current job or studies." },
+            { id: 'opinion', title: "Opinion", desc: "Share your opinion on a recent topic you learned." },
+            { id: 'problem', title: "Problem Solving", desc: "Describe a problem and how you would fix it." },
+            { id: 'future', title: "Future Goals", desc: "What are your goals for next year?" }
+        ];
+
+        let html = `
+            <div class="card mb-10 text-center" style="background: #fff7ed; border-color: #fdba74;">
+                <button class="btn btn-outline mb-10" onclick="app.navigate('dashboard')" style="float: left;">← Dashboard</button>
+                <div style="clear: both;"></div>
+                <h2 style="font-size: 1.8rem; color: #ea580c;">Month ${d.month} Test</h2>
+                <p>Measure your capability to answer real-life topics.</p>
+            </div>
+            
+            <div class="msg-box">Write clear, complete sentences for each section below. Imagine you are speaking to a native speaker.</div>
+        `;
+
+        sections.forEach(sec => {
+            html += `
+                <div class="card">
+                    <h3>${sec.title}</h3>
+                    <p class="text-muted mb-10">${sec.desc}</p>
+                    <textarea id="test-${sec.id}" placeholder="Write your response...">${savedTest[sec.id] || ''}</textarea>
+                </div>
+            `;
+        });
+
+        html += `
+            <div class="text-center mt-20">
+                <button class="btn btn-success" style="padding: 12px 24px; font-size: 1.1rem;" onclick="app.saveMonthlyTest()">Submit Test & Mark Done</button>
+            </div>
+        `;
+        this.contentDiv.innerHTML = html;
+    },
+
+    saveMonthlyTest() {
+        let d = this.currentDayData;
+        let result = {};
+        ['intro', 'daily', 'work', 'opinion', 'problem', 'future'].forEach(id => {
+            let el = document.getElementById(`test-${id}`);
+            if(el) result[id] = el.value.trim();
+        });
+        
+        this.userData.tests[d.day] = result;
+        this.userData.progress[d.day] = 'done';
+        this.saveProgress();
+        this.navigate('dashboard');
+    },
+
+    /** REVIEW PAGE VIEW **/
+    renderReviewPage() {
+        let itemsToReview = this.userData.reviewAgain || [];
+        
+        let html = `
+            <div class="section-title">Mastery Review</div>
+            
+            <div class="card text-center" style="background: #f0fdfa; border-color: #5eead4;">
+                <h3>Need to Review</h3>
+                <p class="mb-10">You have ${itemsToReview.length} items marked for review.</p>
+                <button class="btn btn-primary" ${itemsToReview.length===0?'disabled':''} onclick="app.startGlobalReview()">Practice Review Items</button>
+                <button class="btn btn-outline" onclick="app.clearReviewQueue()">Clear List</button>
+            </div>
+            
+            <div id="global-recall-area" class="card hidden"></div>
+
+            <div class="card">
+                <h3>All Learned Vocabulary & Phrases</h3>
+                <p class="text-muted mb-10">Showing items from completed days.</p>
+                <div class="grid-2">
+        `;
+
+        let learnedHtml = '';
+        curriculum.forEach(d => {
+            if(this.userData.progress[d.day] === 'done' && (d.type === 'normal' || d.type === 'mixed')) {
+                learnedHtml += `
+                    <div style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                        <strong style="color: var(--primary);">Day ${d.day}: ${d.topic}</strong>
+                        <ul class="vocab-list" style="margin-top: 5px;">
+                `;
+                let all = [...d.phrases, ...d.vocabulary];
+                all.forEach(item => {
+                    learnedHtml += `<li><span class="en-text" style="font-size:0.95rem;">${item.en}</span><span class="id-text" style="font-size:0.85rem;">${item.id}</span></li>`;
+                });
+                learnedHtml += `</ul></div>`;
+            }
+        });
+
+        if(!learnedHtml) learnedHtml = "<p>Complete some days to see your learned words here!</p>";
+        
+        html += `<div style="grid-column: 1 / -1;">${learnedHtml}</div></div></div>`;
+        this.contentDiv.innerHTML = html;
+    },
+
+    startGlobalReview() {
+        document.getElementById('global-recall-area').classList.remove('hidden');
+        this.recallState.items = [...this.userData.reviewAgain].sort(() => 0.5 - Math.random());
+        this.recallState.index = 0;
+        
+        // Override render logic temporarily for global review
+        this.renderGlobalRecallItem = function() {
+            let state = this.recallState;
+            if(state.index >= state.items.length) {
+                document.getElementById('global-recall-area').innerHTML = `
+                    <div style="color: var(--success); font-weight: bold;">Review Session Done!</div>
+                    <button class="btn btn-outline mt-10" onclick="document.getElementById('global-recall-area').classList.add('hidden')">Close</button>
+                `;
+                return;
+            }
+
+            let item = state.items[state.index];
+            document.getElementById('global-recall-area').innerHTML = `
+                <div id="recall-hint">Indonesian: <strong>${item.id}</strong></div>
+                <input type="text" id="recall-input" placeholder="Type English translation..." autocomplete="off">
+                <button class="btn btn-primary mt-10" onclick="app.checkGlobalRecall()">Check Answer</button>
+                <div id="recall-answer" style="display:none; color: var(--success); font-weight: bold; margin-top: 10px;">Correct: ${item.en}</div>
+                <div id="recall-actions" class="hidden flex gap-10 justify-center mt-10">
+                    <button class="btn btn-success" onclick="app.nextGlobalRecall(true)">Memorized (Remove from list)</button>
+                    <button class="btn btn-warning" onclick="app.nextGlobalRecall(false)">Still Hard (Keep)</button>
+                </div>
+            `;
+        };
+        this.renderGlobalRecallItem();
+    },
+
+    checkGlobalRecall() {
+        document.getElementById('recall-answer').style.display = 'block';
+        document.getElementById('recall-actions').classList.remove('hidden');
+    },
+
+    nextGlobalRecall(memorized) {
+        let item = this.recallState.items[this.recallState.index];
+        if(memorized) {
+            this.userData.reviewAgain = this.userData.reviewAgain.filter(i => i.en !== item.en);
+            this.saveProgress();
+        }
+        this.recallState.index++;
+        this.renderGlobalRecallItem();
+    },
+
+    clearReviewQueue() {
+        if(confirm("Are you sure you want to clear your review list?")) {
+            this.userData.reviewAgain = [];
+            this.saveProgress();
+            this.renderReviewPage();
+        }
+    },
+
+    /** PROGRESS PAGE VIEW **/
+    renderProgressPage() {
+        let totalDays = 90;
+        let completedDays = Object.values(this.userData.progress).filter(status => status === 'done').length;
+        let progressPct = Math.round((completedDays / totalDays) * 100);
+        
+        let totalSentences = Object.values(this.userData.sentences).reduce((acc, arr) => acc + arr.length, 0);
+        let totalConvos = Object.values(this.userData.conversations).reduce((acc, arr) => acc + arr.length, 0);
+        let reviewItems = this.userData.reviewAgain ? this.userData.reviewAgain.length : 0;
+
+        let html = `
+            <div class="section-title">My Progress</div>
+            
+            <div class="card text-center">
+                <h2>${progressPct}% Completed</h2>
+                <div style="background: var(--border); height: 20px; border-radius: 10px; margin: 15px 0; overflow: hidden;">
+                    <div style="background: var(--success); height: 100%; width: ${progressPct}%; transition: width 0.5s;"></div>
+                </div>
+                <p class="text-muted">${completedDays} out of ${totalDays} days finished</p>
+                ${this.userData.lastDayOpened ? `<p class="mt-10"><strong>Last Opened:</strong> Day ${this.userData.lastDayOpened}</p>` : ''}
+            </div>
+
+            <div class="grid-2">
+                <div class="card text-center">
+                    <h1 style="color: var(--primary); font-size: 3rem; margin: 0;">${totalSentences}</h1>
+                    <p style="font-weight: bold;">Sentences Created</p>
+                </div>
+                <div class="card text-center">
+                    <h1 style="color: var(--primary); font-size: 3rem; margin: 0;">${totalConvos}</h1>
+                    <p style="font-weight: bold;">Conversation Answers</p>
+                </div>
+                <div class="card text-center">
+                    <h1 style="color: var(--warning); font-size: 3rem; margin: 0;">${reviewItems}</h1>
+                    <p style="font-weight: bold;">Items to Review</p>
+                </div>
+                <div class="card text-center">
+                    <h1 style="color: var(--success); font-size: 3rem; margin: 0;">${Object.keys(this.userData.tests).length}</h1>
+                    <p style="font-weight: bold;">Tests Completed</p>
+                </div>
+            </div>
+        `;
+        this.contentDiv.innerHTML = html;
+    }
+};
+
+// Initialize App
+window.onload = () => {
+    app.init();
+};
+</script>
+</body>
+</html>
